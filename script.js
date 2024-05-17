@@ -13,13 +13,32 @@ const inputElevation = document.querySelector('.form__input--elevation');
 
 console.log(navigator.geolocation);
 
-navigator.geolocation.getCurrentPosition(function(positions){
+navigator.geolocation.getCurrentPosition(
+  function (position) {
+    console.log(position.coords);
 
-    
-    console.log(positions.coords);
+    const { longitude } = position.coords;
+    const { latitude } = positions.coords;
 
-    const {longitude} = positions.coords;
-    const {latitude}= positions.coords
-    console.log(`https://www.google.com/maps/@${longitude},${latitude}?entry=ttu`);
-}, function()
-{console.log('not able to fetched the coordinates ')})
+    const location = [longitude, latitude];
+    // console.log(
+    //   `https://www.google.com/maps/@${longitude},${latitude}?entry=ttu`
+    // );
+
+    // const map = L.map('map').setView(coords, 13);
+    const map = L.map('map').setView(location, 13);
+
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution:
+        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+    }).addTo(map);
+
+    L.marker(location)
+      .addTo(map)
+      .bindPopup('A pretty CSS popup.<br> Easily customizable.')
+      .openPopup();
+  },
+  function () {
+    console.log('not able to fetched the coordinates ');
+  }
+);
