@@ -28,17 +28,34 @@ navigator.geolocation.getCurrentPosition(
     // const map = L.map('map').setView(coords, 13);
     const map = L.map('map').setView(location, 13);
 
-    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    L.tileLayer('https://tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
       attribution:
         '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
     }).addTo(map);
 
-    L.marker(location)
+    
+
+      // instead of using eventlistener to add marker on map , we are using the leaflet provided method to handle that 
+
+      map.on('click',function(mapEvent){
+        console.log(mapEvent);
+        const {lat , lng} = mapEvent.latlng;
+        // console.log(L);
+        L.marker([lat,lng])
       .addTo(map)
-      .bindPopup('A pretty CSS popup.<br> Easily customizable.')
+      .bindPopup(L.popup({maxWidth: 250,
+      minWidth : 50,
+      autoclose : false,
+      closeOnClick : false,
+      className : 'running-popup'
+
+      })).setPopupContent('Workout')
       .openPopup();
+
+      })
   },
   function () {
     console.log('not able to fetched the coordinates ');
   }
 );
+
