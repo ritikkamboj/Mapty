@@ -18,9 +18,9 @@ navigator.geolocation.getCurrentPosition(
     console.log(position.coords);
 
     const { longitude } = position.coords;
-    const { latitude } = positions.coords;
-
-    const location = [longitude, latitude];
+    const { latitude } = position.coords;
+  
+    const location = [latitude, longitude];
     // console.log(
     //   `https://www.google.com/maps/@${longitude},${latitude}?entry=ttu`
     // );
