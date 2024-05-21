@@ -43,16 +43,18 @@ navigator.geolocation.getCurrentPosition(
         // console.log(L);
         L.marker([lat,lng])
       .addTo(map)
-      .bindPopup(L.popup({maxWidth: 250,
-      minWidth : 50,
-      autoclose : false,
+      .bindPopup(
+        L.popup({
+      maxWidth: 250,
+      minWidth : 100,
+      autoClose : false,
       closeOnClick : false,
       className : 'running-popup'
 
-      })).setPopupContent('Workout')
+      })).setPopupContent("Workout")
       .openPopup();
 
-      })
+      });
   },
   function () {
     console.log('not able to fetched the coordinates ');
