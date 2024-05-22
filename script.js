@@ -12,52 +12,94 @@ const inputCadence = document.querySelector('.form__input--cadence');
 const inputElevation = document.querySelector('.form__input--elevation');
 
 console.log(navigator.geolocation);
+let map;
+let mapEvent;
 
-navigator.geolocation.getCurrentPosition(
-  function (position) {
-    console.log(position.coords);
 
-    const { longitude } = position.coords;
-    const { latitude } = position.coords;
-  
-    const location = [latitude, longitude];
-    // console.log(
-    //   `https://www.google.com/maps/@${longitude},${latitude}?entry=ttu`
-    // );
+if (navigator.geolocation) {
+  navigator.geolocation.getCurrentPosition(
+    function (position) {
+      console.log(position.coords);
 
-    // const map = L.map('map').setView(coords, 13);
-    const map = L.map('map').setView(location, 13);
+      const { longitude } = position.coords;
+      const { latitude } = position.coords;
 
-    L.tileLayer('https://tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
-      attribution:
-        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-    }).addTo(map);
+      const location = [latitude, longitude];
+      // console.log(
+      //   `https://www.google.com/maps/@${longitude},${latitude}?entry=ttu`
+      // );
 
-    
+      // const map = L.map('map').setView(coords, 13);
+      map = L.map('map').setView(location, 13);
+
+      L.tileLayer('https://tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
+        attribution:
+          '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+      }).addTo(map);
+
+
 
       // instead of using eventlistener to add marker on map , we are using the leaflet provided method to handle that 
 
-      map.on('click',function(mapEvent){
-        console.log(mapEvent);
-        const {lat , lng} = mapEvent.latlng;
-        // console.log(L);
-        L.marker([lat,lng])
-      .addTo(map)
-      .bindPopup(
-        L.popup({
-      maxWidth: 250,
-      minWidth : 100,
-      autoClose : false,
-      closeOnClick : false,
-      className : 'running-popup'
+      map.on('click', function (mapE) {
+        mapEvent = mapE;
+        form.classList.remove('hidden');
+        inputDistance.focus();
 
-      })).setPopupContent("Workout")
-      .openPopup();
+
+        //   console.log(mapEvent);
+        //   const {lat , lng} = mapEvent.latlng;
+        //   // console.log(L);
+        //   L.marker([lat,lng])
+        // .addTo(map)
+        // .bindPopup(
+        //   L.popup({
+        // maxWidth: 250,
+        // minWidth : 100,
+        // autoClose : false,
+        // closeOnClick : false,
+        // className : 'running-popup'
+
+        // })).setPopupContent("Workout")
+        // .openPopup();
+
 
       });
-  },
-  function () {
-    console.log('not able to fetched the coordinates ');
-  }
-);
+    },
+    function () {
+      console.log('not able to fetched the coordinates ');
+    }
+  );
+}
+
+
+// handling separetly that when user click on the submit 
+
+form.addEventListener('submit', function (e) {
+  e.preventDefault();
+  inputDistance.value = inputCadence.value = inputDuration.value = inputElevation.value = '';
+
+
+  console.log(mapEvent);
+  const { lat, lng } = mapEvent.latlng;
+  // console.log(L);
+  L.marker([lat, lng])
+    .addTo(map)
+    .bindPopup(
+      L.popup({
+        maxWidth: 250,
+        minWidth: 100,
+        autoClose: false,
+        closeOnClick: false,
+        className: 'running-popup'
+
+      })).setPopupContent("Workout")
+    .openPopup();
+
+});
+
+inputType.addEventListener('change',function(){
+  inputElevation.closest('.form__row').classList.toggle('form__row--hidden');
+  inputCadence.closest('.form__row').classList.toggle('form__row--hidden');
+})
 
