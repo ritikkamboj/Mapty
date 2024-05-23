@@ -29,6 +29,7 @@ class Workout {
 }
 
 class Running extends Workout {
+  type ='running';
 
   constructor(cords, distance, duration, cadence) {
     super(cords, distance, duration);
@@ -44,6 +45,7 @@ class Running extends Workout {
 }
 
 class Cycling extends Workout {
+  type='cycling';
   constructor(cords, distance, duration, elevation) {
     super(cords, distance, duration);
     this.elevation = elevation;
@@ -67,6 +69,7 @@ class App {
 
   #map;
   #mapEvent;
+  #workouts =[];
 
   constructor() {
     this._getPosition();
@@ -134,6 +137,8 @@ class App {
     const type = inputType.value;
     const distance = +inputDistance.value;
     const duration = +inputDuration.value;
+    const { lat, lng } = this.#mapEvent.latlng; 
+    let workout;
 
     if (type === 'running') {
       const cadence = +inputCadence.value;
@@ -145,7 +150,8 @@ class App {
           return alert("please enter a finite a number ");
         }
         
-
+         workout = new Running([lat, lng],distance,duration,cadence);
+         
     }
 
     if (type === 'cycling') {
@@ -154,15 +160,25 @@ class App {
       if(!validInputs(distance,duration,elevation) || !allPosititve(distance,duration)){
         return alert("please enter a finite a number ");
       }
+
+      workout = new Cycling([lat, lng], distance,duration,elevation);
     }
+    this.#workouts.push(workout);
+    console.log(workout);
+    this.renderWorkoutMarker(workout);
 
     inputDistance.value = inputCadence.value = inputDuration.value = inputElevation.value = '';
 
 
     console.log(this.#mapEvent);
-    const { lat, lng } = this.#mapEvent.latlng;  // why not here we change as #mapEvent ???
+    // const { lat, lng } = this.#mapEvent.latlng; 
     // console.log(L);
-    L.marker([lat, lng])
+    
+  }
+
+  renderWorkoutMarker(workout){
+    console.log(workout)
+    L.marker(workout.cords)
       .addTo(this.#map)
       .bindPopup(
         L.popup({
@@ -170,10 +186,11 @@ class App {
           minWidth: 100,
           autoClose: false,
           closeOnClick: false,
-          className: 'running-popup'
+          className: `${workout.type}-popup`,
 
-        })).setPopupContent("Workout")
+        })).setPopupContent(`workout`)
       .openPopup();
+
   }
 }
 
