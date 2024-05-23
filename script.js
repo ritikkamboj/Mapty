@@ -15,74 +15,71 @@ console.log(navigator.geolocation);
 let map;
 let mapEvent;
 
-class Workout
-{
+class Workout {
   date = new Date();
   id = (Date.now() + '').slice(-10);
 
 
-  constructor(cords, distance,duration)
-  {
-    this.cords= cords;
+  constructor(cords, distance, duration) {
+    this.cords = cords;
     this.distance = distance;
     this.duration = duration;
 
   }
 }
 
-class Running extends Workout{
+class Running extends Workout {
 
-  constructor(cords, distance,duration,cadence){
-    super(cords, distance,duration);
-    this.cadence= cadence;
+  constructor(cords, distance, duration, cadence) {
+    super(cords, distance, duration);
+    this.cadence = cadence;
     this.calcPace();
-    
+
   }
-  calcPace()
-  {
-    this.pace = this.duration/this.distance;
+  calcPace() {
+    this.pace = this.duration / this.distance;
     return this.pace;
   }
 
 }
 
-class Cycling extends Workout{
-  constructor(cords, distance,duration,elevation){
-    super(cords, distance,duration);
-    this.elevation=elevation;
+class Cycling extends Workout {
+  constructor(cords, distance, duration, elevation) {
+    super(cords, distance, duration);
+    this.elevation = elevation;
     this.calcSpeed();
 
   }
-  calcSpeed(){
-    this.speed = this.distance/(this.duration/60);
+  calcSpeed() {
+    this.speed = this.distance / (this.duration / 60);
     return this.speed;
   }
-  
+
 
 }
 
 
-const run1 = new Running([39,-12],5.2,24,170);
-const cycling1 = new Cycling([39,-12],27,95,523);
-console.log(run1,cycling1)
+const run1 = new Running([39, -12], 5.2, 24, 170);
+const cycling1 = new Cycling([39, -12], 27, 95, 523);
+console.log(run1, cycling1)
 
-class App{
+class App {
 
   #map;
   #mapEvent;
 
-  constructor(){
+  constructor() {
     this._getPosition();
     form.addEventListener('submit', this._newWorkout.bind(this));
-    
+
     inputType.addEventListener('change', this._toggleElevationField);
 
   }
 
-  _getPosition(){
+  _getPosition() {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
-       this._loadMap.bind(this)
+        this._loadMap.bind(this)
         ,
         function () {
           console.log('not able to fetched the coordinates ');
@@ -92,28 +89,28 @@ class App{
   }
 
   _loadMap(position) {
-    
-      console.log(position.coords);
 
-      const { longitude } = position.coords;
-      const { latitude } = position.coords;
+    console.log(position.coords);
 
-      const location = [latitude, longitude];
-     
-     this.#map = L.map('map').setView(location, 13);
+    const { longitude } = position.coords;
+    const { latitude } = position.coords;
 
-      L.tileLayer('https://tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
-        attribution:
-          '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-      }).addTo(this.#map);
+    const location = [latitude, longitude];
+
+    this.#map = L.map('map').setView(location, 13);
+
+    L.tileLayer('https://tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
+      attribution:
+        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+    }).addTo(this.#map);
 
 
 
-      // instead of using eventlistener to add marker on map , we are using the leaflet provided method to handle that 
+    // instead of using eventlistener to add marker on map , we are using the leaflet provided method to handle that 
 
-      this.#map.on('click', this._showForm.bind(this) );
-    }
-  
+    this.#map.on('click', this._showForm.bind(this));
+  }
+
 
   _showForm(mapE) {
     this.#mapEvent = mapE;
@@ -128,12 +125,40 @@ class App{
   }
 
   _newWorkout(e) {
+    const validInputs = (...inputs)=> inputs.every(inp => Number.isFinite(inp));
+    const allPosititve =(...inputs)=> inputs.every(inp => inp >0);
 
-    
+
     e.preventDefault();
+
+    const type = inputType.value;
+    const distance = +inputDistance.value;
+    const duration = +inputDuration.value;
+
+    if (type === 'running') {
+      const cadence = +inputCadence.value;
+      console.log("jeet")
+
+      //here we are using the guard class , like we have to check on opposite condition 
+      if(!validInputs(distance,duration,cadence) || !allPosititve(distance,duration,cadence)) 
+        {
+          return alert("please enter a finite a number ");
+        }
+        
+
+    }
+
+    if (type === 'cycling') {
+      const elevation = +inputElevation.value
+
+      if(!validInputs(distance,duration,elevation) || !allPosititve(distance,duration)){
+        return alert("please enter a finite a number ");
+      }
+    }
+
     inputDistance.value = inputCadence.value = inputDuration.value = inputElevation.value = '';
-  
-  
+
+
     console.log(this.#mapEvent);
     const { lat, lng } = this.#mapEvent.latlng;  // why not here we change as #mapEvent ???
     // console.log(L);
@@ -146,7 +171,7 @@ class App{
           autoClose: false,
           closeOnClick: false,
           className: 'running-popup'
-  
+
         })).setPopupContent("Workout")
       .openPopup();
   }
