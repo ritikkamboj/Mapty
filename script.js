@@ -16,6 +16,7 @@ let mapEvent;
 class Workout {
   date = new Date();
   id = (Date.now() + '').slice(-10);
+  clicks = 0;
 
 
   constructor(cords, distance, duration) {
@@ -31,7 +32,12 @@ class Workout {
 
     this.description = `${this.type[0].toUpperCase()}${this.type.slice(1)} on ${months[this.date.getMonth()]} ${this.date.getDate()} `;
   }
+  click()
+{
+  this.clicks++;
 }
+}
+
 
 class Running extends Workout {
   type = 'running';
@@ -76,6 +82,7 @@ console.log(run1, cycling1)
 class App {
 
   #map;
+  #mapZoomLevel = 13;
   #mapEvent;
   #workouts = [];
 
@@ -84,7 +91,7 @@ class App {
     form.addEventListener('submit', this._newWorkout.bind(this));
 
     inputType.addEventListener('change', this._toggleElevationField);
-
+    containerWorkouts.addEventListener('click', this._moveToPopup.bind(this))
   }
 
   _getPosition() {
@@ -108,7 +115,7 @@ class App {
 
     const location = [latitude, longitude];
 
-    this.#map = L.map('map').setView(location, 13);
+    this.#map = L.map('map').setView(location, this.#mapZoomLevel);
 
     L.tileLayer('https://tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
       attribution:
@@ -128,15 +135,14 @@ class App {
     form.classList.remove('hidden');
     inputDistance.focus();
   }
-  _hideForm()
-  {
+  _hideForm() {
     inputDistance.value = inputCadence.value = inputDuration.value = inputElevation.value = '';
     // form.classList.add('hidden');
 
     // do here chatGPT
-    form.style.display='none';
+    form.style.display = 'none';
     form.classList.add('hidden');
-    setTimeout(()=> (form.style.display = 'grid'),1000);
+    setTimeout(() => (form.style.display = 'grid'), 1000);
 
 
 
@@ -262,6 +268,25 @@ class App {
 
     form.insertAdjacentHTML('afterend', html);
 
+  }
+  _moveToPopup(e) {
+    const workoutEl = e.target.closest('.workout');
+    console.log(workoutEl);
+
+
+    if (!workoutEl)
+      return;
+
+    const workout = this.#workouts.find(work => work.id === workoutEl.dataset.id);
+    console.log(workout);
+
+    this.#map.setView(workout.cords, this.#mapZoomLevel, {
+      animate: true,
+      pan: {
+        duration: 1,
+      }
+    });
+    workout.click();
   }
 }
 
