@@ -88,6 +88,11 @@ class App {
 
   constructor() {
     this._getPosition();
+
+    this._getLocalStorage();
+
+
+
     form.addEventListener('submit', this._newWorkout.bind(this));
 
     inputType.addEventListener('change', this._toggleElevationField);
@@ -127,6 +132,10 @@ class App {
     // instead of using eventlistener to add marker on map , we are using the leaflet provided method to handle that 
 
     this.#map.on('click', this._showForm.bind(this));
+
+    this.#workouts.forEach(work => {this._renderWorkoutMarker(work);
+
+    });
   }
 
 
@@ -198,10 +207,13 @@ class App {
 
 
     this._hideForm();
+    this._setLocalStorage();
 
     console.log(this.#mapEvent);
     // const { lat, lng } = this.#mapEvent.latlng; 
     // console.log(L);
+
+    
 
   }
 
@@ -286,7 +298,35 @@ class App {
         duration: 1,
       }
     });
-    workout.click();
+    // workout.click();
+  }
+
+  _setLocalStorage(){
+    localStorage.setItem('workouts',JSON.stringify(this.#workouts));
+
+
+  }
+
+  _getLocalStorage()
+  {
+    const data =JSON.parse(localStorage.getItem('workouts'));
+    // console.log(`jai maata di `)
+    // console.log(data);
+    // console.log(JSON.parse(data));
+
+    if(!(data)) return
+
+    this.#workouts = data ;
+
+    this.#workouts.forEach(work => {this._renderWorkout(work)});
+
+  }
+
+  reset()
+  {
+    localStorage.removeItem('workouts');
+    location.reload();
+    
   }
 }
 
